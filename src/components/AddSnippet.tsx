@@ -1,4 +1,8 @@
-export default function AddSnippet() {
+import { useRouter } from "next/router"
+
+export default function AddSnippet(props) {
+    const router = useRouter()
+    
     async function addNewSnippet(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault()
       const {method, action} = e.target as HTMLFormElement
@@ -16,13 +20,19 @@ export default function AddSnippet() {
             'accept': 'application/json'
         }
       }).then(r => r.json())
-      alert(`${res.language}, ${res.description}, ${res.snippet}`)
+      console.log('here is the res ', res)
+      props.onSuccess()
+      props.updateSnippets(props.oldSnippets.push(res))
+      // router.push('/snippets')
     }
   
     return (
       <>
-        <div className="p-2 md:w-1/2 w-full bg-slate-300" id="add-snippet-container">
+        <div className="p-2 md:w-1/2 w-full bg-slate-300 fixed left-0 lg:translate-x-1/2 z-10 top-0" id="add-snippet-container">
           <form id="add-snippet" method="POST" action="/api/snippets/new" onSubmit={addNewSnippet} className="grid grid-flow-row auto-rows-max gap-3">
+            <input type="hidden" name="author" value={props.author} />
+            <label htmlFor="name">Name</label>
+            <input type="text" name="name" id="name" />
             <label htmlFor="language">Language</label>
             <input type="text" name="language" id="language" />
             <label htmlFor="description">Description</label>
