@@ -1,0 +1,16 @@
+#code-wrapper > pre[class*="language-"] {
+    margin: 0;
+}
+
+.menu {
+    max-height: 0;
+    transition: all 300ms ease-out;
+    overflow: hidden;
+    opacity: 0.35;
+}
+
+.move {
+    max-height: 500px;
+    opacity: 1;
+    transition: all 300ms ease-in;
+}
