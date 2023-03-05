@@ -5,7 +5,8 @@ const nextConfig = {
     domains: [
       'avatars.githubusercontent.com'
     ]
-  }
+  },
+  poweredByHeader: false,
 }
 
 module.exports = nextConfig
