@@ -1,7 +1,6 @@
 import { useRouter } from "next/router"
 
-export default function AddSnippet(props) {
-    const router = useRouter()
+export default function AddSnippet(props: AddSnippetProps) {
     
     async function addNewSnippet(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault()
@@ -22,8 +21,7 @@ export default function AddSnippet(props) {
       }).then(r => r.json())
       console.log('here is the res ', res)
       props.onSuccess()
-      props.updateSnippets(props.oldSnippets.push(res))
-      // router.push('/snippets')
+      props.updateSnippets(props.oldSnippets, res)
     }
   
     return (
