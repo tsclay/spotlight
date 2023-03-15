@@ -14,7 +14,8 @@ import initPocketBase from "@/utils/_db";
 import Layout from "@/components/Layout";
 import fs from "fs";
 import path from "path";
-import { Snippet, SnippetProps } from "types";
+import { SnippetProps } from "types";
+import { useRouter } from "next/router";
 // import AnimateHeight from 'react-animate-height';
 
 // function useOutsideAlerter(ref) {
@@ -65,18 +66,20 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       preferredTheme: JSON.parse(JSON.stringify(preferredTheme)) ?? null,
     },
   };
-  return blah
+  return blah;
 };
 
 function SnippetsPage(props: SnippetProps) {
   const [showAdd, setShowAdd] = useState<boolean>(false);
   const { snippets, isAuth, css, themes, preferredTheme } = props;
-  const [updateSnippets, setUpdateSnippets] = useState<Snippet[]>(snippets);
+  // const [updateSnippets, setUpdateSnippets] = useState<Snippet[]>(snippets);
   const descriptionRefs = useRef(snippets.map((s) => createRef()));
   const clipboardRefs = useRef(snippets.map((s) => createRef()));
   const lastPressedCopy =
     useRef<MutableRefObject<null | HTMLButtonElement>>(null);
-  const styleTagRef = useRef()
+  const styleTagRef = useRef();
+  const router = useRouter();
+  const refresh = () => router.replace(router.pathname);
   // const selectedThemeRef = useRef(preferredTheme?.file_name)
   // const [selectedTheme, setSelectedTheme] = useState(preferredTheme?.file_name);
 
@@ -106,13 +109,14 @@ function SnippetsPage(props: SnippetProps) {
       body: JSON.stringify({
         themeId,
       }),
-    }).then(r => r.json())
+    }).then((r) => r.json());
     // if (!response.ok) {
     //   console.log("response not ok ", response)
     //   return
     // }
     console.log(response);
-    (styleTagRef.current as unknown as HTMLStyleElement).innerHTML = response.css;
+    (styleTagRef.current as unknown as HTMLStyleElement).innerHTML =
+      response.css;
     // setSelectedTheme(response.css_file_name)
   };
 
@@ -125,13 +129,11 @@ function SnippetsPage(props: SnippetProps) {
     // p.classList.toggle('max-h-0')
   };
 
-  const handleUpdateSnippets = (
-    oldSnippets: Snippet[],
-    newSnippet: Snippet
-  ) => {
-    setUpdateSnippets([...oldSnippets, newSnippet]);
+  const handleUpdateSnippets = async () => {
+    // setUpdateSnippets([...oldSnippets, newSnippet]);
     descriptionRefs.current.push(createRef());
     clipboardRefs.current.push(createRef());
+    await refresh();
   };
 
   const copySnippet = async (ref: RefObject<unknown>) => {
@@ -153,6 +155,46 @@ function SnippetsPage(props: SnippetProps) {
     );
     console.log(btn);
     btn.innerText = "✔";
+  };
+
+  const showFullSnippet = (e: SyntheticEvent) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    (e.currentTarget as HTMLButtonElement).classList.toggle("moveit");
+    const parent = (e.currentTarget as HTMLButtonElement).parentElement;
+    const sibling = (e.currentTarget as HTMLButtonElement)
+      .previousElementSibling as HTMLDivElement;
+    const hContainer = parent?.parentElement;
+    if (
+      hContainer &&
+      (e.currentTarget as HTMLButtonElement).classList.contains("moveit")
+    ) {
+      const sStyle = getComputedStyle(sibling);
+      console.log(hContainer);
+      hContainer.style.height = sStyle.height;
+    }
+    parent
+      ?.animate(
+        [
+          {
+            easing: "linear",
+            maxHeight: (
+              e.currentTarget as HTMLButtonElement
+            ).classList.contains("moveit")
+              ? "1000px"
+              : "250px",
+          },
+        ],
+        {
+          duration: 500,
+          fill: "forwards",
+        }
+      )
+      .finished.then((r) => {
+        if (btn && !btn.classList.contains("moveit")) {
+          setTimeout(() => {}, 300);
+          hContainer!.style.height = "250px";
+        }
+      });
   };
 
   useEffect(() => {
@@ -179,8 +221,13 @@ function SnippetsPage(props: SnippetProps) {
 
   return (
     <>
-      {css ? <style ref={styleTagRef} dangerouslySetInnerHTML={{ __html: css }}></style> : null}
-      <div className="flex flex-col gap-4 p-2">
+      {css ? (
+        <style
+          ref={styleTagRef}
+          dangerouslySetInnerHTML={{ __html: css }}
+        ></style>
+      ) : null}
+      <div className="flex flex-col gap-4 p-4">
         {isAuth ? (
           <form
             action="/snippets/new"
@@ -207,18 +254,17 @@ function SnippetsPage(props: SnippetProps) {
         {showAdd && isAuth ? (
           <AddSnippet
             author={isAuth}
-            oldSnippets={updateSnippets}
             updateSnippets={handleUpdateSnippets}
             onSuccess={() => setShowAdd(false)}
           />
         ) : null}
-        {updateSnippets
-          ? updateSnippets.map((s, i) => (
+        {snippets
+          ? snippets.map((s, i) => (
               <div key={s.id} data-author={s.author}>
-                <div className="border-x-2 border-t-2 border-b border-solid border-emerald-500 bg-black p-4 text-white">
+                <div className="rounded-t border-x-2 border-t-2 border-b border-solid border-emerald-500 bg-black p-4 text-white">
                   <button
                     type="button"
-                    className="flex w-full justify-between z-20 relative"
+                    className="relative z-20 flex w-full justify-between"
                     onClick={() =>
                       toggleDescription(descriptionRefs.current[i])
                     }
@@ -230,22 +276,34 @@ function SnippetsPage(props: SnippetProps) {
                     {s.description}
                   </p>
                 </div>
-                <div
-                  id="snippet-wrapper"
-                  className="relative border-x-2 border-t border-b-2 border-solid border-emerald-500"
-                >
-                  <button
-                    ref={clipboardRefs.current[i]}
-                    type="button"
-                    className="absolute top-2 right-2 z-30 rounded bg-slate-300/60 p-1"
-                    onClick={() => copySnippet(clipboardRefs.current[i])}
-                  >
-                    📋
-                  </button>
+                <div className="height-animate-container">
                   <div
-                    id="code-wrapper"
-                    dangerouslySetInnerHTML={{ __html: s.snippet }}
-                  ></div>
+                    id="snippet-wrapper"
+                    className="relative max-h-[250px] overflow-y-hidden rounded-b border-x-2 border-t border-b-2 border-solid border-emerald-500"
+                  >
+                    <button
+                      ref={clipboardRefs.current[i]}
+                      type="button"
+                      className="absolute top-2 right-2 z-30 rounded bg-slate-300/60 p-1"
+                      onClick={() => copySnippet(clipboardRefs.current[i])}
+                    >
+                      📋
+                    </button>
+                    <div
+                      id="code-wrapper"
+                      dangerouslySetInnerHTML={{ __html: s.snippet }}
+                    ></div>
+                    {s.snippet.match(/\n/g) !== null &&
+                      s.snippet.match(/\n/g)!.length > 12 && (
+                        <button
+                          id="see-more"
+                          className="absolute bottom-0 right-0 z-20 w-full text-white"
+                          onClick={showFullSnippet}
+                        >
+                          Show full snippet
+                        </button>
+                      )}
+                  </div>
                 </div>
               </div>
             ))
