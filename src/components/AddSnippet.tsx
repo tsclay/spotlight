@@ -1,4 +1,5 @@
 import { useRouter } from "next/router"
+import { AddSnippetProps } from "types"
 
 export default function AddSnippet(props: AddSnippetProps) {
     
@@ -21,7 +22,7 @@ export default function AddSnippet(props: AddSnippetProps) {
       }).then(r => r.json())
       console.log('here is the res ', res)
       props.onSuccess()
-      props.updateSnippets(props.oldSnippets, res)
+      props.updateSnippets()
     }
   
     return (
