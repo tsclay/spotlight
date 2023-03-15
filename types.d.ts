@@ -1,3 +1,5 @@
+import { Record } from "pocketbase";
+
 type Snippet = {
   author: string;
   collectionId: string;
@@ -28,11 +30,11 @@ type SnippetProps = {
   isAuth: string;
   css: string;
   themes: SnippetTheme[];
+  preferredTheme: Record|null
 };
 
 type AddSnippetProps = {
   author: string;
-  oldSnippets: Snippet[];
-  updateSnippets: (priorSnippets: Snippet[], newSnippet: Snippet) => void;
+  updateSnippets: () => Promise<void>;
   onSuccess: () => void;
 };
