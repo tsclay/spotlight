@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { SyntheticEvent } from "react";
 
 export default function Nav() {
@@ -10,12 +11,25 @@ export default function Nav() {
     {
       href: "/you",
       name: "Account",
-    },
+    }
   ];
+  const router = useRouter()
 
   const handleToggleAside = (e: SyntheticEvent) => {
     const aside = (e.currentTarget as HTMLButtonElement).nextElementSibling;
     aside?.classList.toggle("nav-show");
+  }
+
+  const handleLogout = async (e: SyntheticEvent) => {
+    e.preventDefault()
+    const {method, action} = e.target as HTMLFormElement
+    const response = await fetch(action, {
+      method
+    })
+    console.log('logout ', response)
+    if (response.ok) {
+      router.push('/')
+    }
   }
 
   return (
@@ -32,6 +46,9 @@ export default function Nav() {
             {l.name}
           </Link>
         ))}
+        <form action="/api/auth/logout" method="POST" onSubmit={handleLogout}>
+          <button type="submit">Logout</button>
+        </form>
       </aside>
     </>
   );
