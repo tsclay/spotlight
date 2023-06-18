@@ -43,6 +43,7 @@ export default function OAuthRedirectPage(props: OAuthParamsProps) {
       console.log(response)
       if (response.status == 200) {
         router.push('/snippets')
+        return
       }
       router.push('/auth/login')
     };
