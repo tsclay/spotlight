@@ -3,6 +3,7 @@ import { GetServerSideProps } from "next";
 import { useState, useEffect, ReactElement } from "react";
 import initPocketBase from "@/utils/_db";
 import Layout from "@/components/Layout";
+import "prismjs/themes/prism-tomorrow.css";
 
 // function useOutsideAlerter(ref) {
 //   useEffect(() => {
