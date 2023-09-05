@@ -40,7 +40,7 @@ import { useRouter } from "next/router";
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const pb = await initPocketBase(req, res);
   console.log("THE BLAH BLAH ", pb.authStore.model?.preferred_theme);
-  const snippets = await (await pb.collection("snippets").getList(1, 20)).items;
+  const snippets = (await pb.collection("snippets").getList(1, 20)).items;
   const themes = await pb.collection("snippet_themes").getFullList();
   // console.log("THE SNPPIETS ", snippets);
   const dir = path.resolve("./src", "styles");
@@ -60,7 +60,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const blah = {
     props: {
       snippets: JSON.parse(JSON.stringify(snippets)),
-      isAuth: pb.authStore.model?.id ?? "",
+      userData: JSON.parse(JSON.stringify(pb.authStore.model)),
       css: JSON.parse(JSON.stringify(cssFile)),
       themes: JSON.parse(JSON.stringify(themes)),
       preferredTheme: JSON.parse(JSON.stringify(preferredTheme)) ?? null,
@@ -71,7 +71,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 
 function SnippetsPage(props: SnippetProps) {
   const [showAdd, setShowAdd] = useState<boolean>(false);
-  const { snippets, isAuth, css, themes, preferredTheme } = props;
+  const { snippets, userData, css, themes, preferredTheme } = props;
   // const [updateSnippets, setUpdateSnippets] = useState<Snippet[]>(snippets);
   const descriptionRefs = useRef(snippets.map((s) => createRef()));
   const clipboardRefs = useRef(snippets.map((s) => createRef()));
@@ -151,7 +151,7 @@ function SnippetsPage(props: SnippetProps) {
     }
     await navigator.clipboard.writeText(
       btn.nextElementSibling?.textContent ??
-        "If you see this, the copy btn is broken."
+      "If you see this, the copy btn is broken."
     );
     console.log(btn);
     btn.innerText = "✔";
@@ -159,14 +159,16 @@ function SnippetsPage(props: SnippetProps) {
 
   const showFullSnippet = (e: SyntheticEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
-    (e.currentTarget as HTMLButtonElement).classList.toggle("moveit");
-    const parent = (e.currentTarget as HTMLButtonElement).parentElement;
-    const sibling = (e.currentTarget as HTMLButtonElement)
+    const btnText = btn.lastElementChild as HTMLSpanElement;
+    btn.classList.toggle("moveit");
+    btnText.innerText = "Show less"
+    const parent = btn.parentElement;
+    const sibling = btn
       .previousElementSibling as HTMLDivElement;
     const hContainer = parent?.parentElement;
     if (
       hContainer &&
-      (e.currentTarget as HTMLButtonElement).classList.contains("moveit")
+      btn.classList.contains("moveit")
     ) {
       const sStyle = getComputedStyle(sibling);
       console.log(hContainer);
@@ -177,9 +179,7 @@ function SnippetsPage(props: SnippetProps) {
         [
           {
             easing: "linear",
-            maxHeight: (
-              e.currentTarget as HTMLButtonElement
-            ).classList.contains("moveit")
+            maxHeight: btn.classList.contains("moveit")
               ? "1000px"
               : "250px",
           },
@@ -191,8 +191,9 @@ function SnippetsPage(props: SnippetProps) {
       )
       .finished.then((r) => {
         if (btn && !btn.classList.contains("moveit")) {
-          setTimeout(() => {}, 300);
+          setTimeout(() => { }, 300);
           hContainer!.style.height = "250px";
+          btnText.innerText = "Show full snippet"
         }
       });
   };
@@ -228,7 +229,7 @@ function SnippetsPage(props: SnippetProps) {
         ></style>
       ) : null}
       <div className="flex flex-col gap-4 p-4">
-        {isAuth ? (
+        {userData && userData.id ? (
           <form
             action="/snippets/new"
             method="GET"
@@ -240,7 +241,7 @@ function SnippetsPage(props: SnippetProps) {
             <button type="submit">+</button>
           </form>
         ) : null}
-        <select name="theme" id="theme" onChange={updatePreferredTheme}>
+        <select name="theme" id="theme" className="bg-blue-200 w-2/4" onChange={updatePreferredTheme}>
           {themes.map((t) => (
             <option
               key={t.id}
@@ -251,62 +252,62 @@ function SnippetsPage(props: SnippetProps) {
             </option>
           ))}
         </select>
-        {showAdd && isAuth ? (
+        {showAdd && userData && userData.id ? (
           <AddSnippet
-            author={isAuth}
+            author={userData.id}
             updateSnippets={handleUpdateSnippets}
             onSuccess={() => setShowAdd(false)}
           />
         ) : null}
         {snippets
           ? snippets.map((s, i) => (
-              <div key={s.id} data-author={s.author}>
-                <div className="rounded-t border-x-2 border-t-2 border-b border-solid border-emerald-500 bg-black p-4 text-white">
+            <div key={s.id} data-author={s.author}>
+              <div className="rounded-t border-x-2 border-t-2 border-b border-solid border-emerald-500 bg-black p-4 text-white">
+                <button
+                  type="button"
+                  className="relative z-20 flex w-full justify-between"
+                  onClick={() =>
+                    toggleDescription(descriptionRefs.current[i])
+                  }
+                >
+                  <span>{s.name}</span>
+                  <span>{s.language}</span>
+                </button>
+                <p ref={descriptionRefs.current[i]} className="menu">
+                  {s.description}
+                </p>
+              </div>
+              <div className="height-animate-container">
+                <div
+                  id="snippet-wrapper"
+                  className="relative max-h-[250px] overflow-y-hidden rounded-b border-x-2 border-t border-b-2 border-solid border-emerald-500"
+                >
                   <button
+                    ref={clipboardRefs.current[i]}
                     type="button"
-                    className="relative z-20 flex w-full justify-between"
-                    onClick={() =>
-                      toggleDescription(descriptionRefs.current[i])
-                    }
+                    className="absolute top-2 right-2 z-30 rounded bg-slate-300/60 p-1"
+                    onClick={() => copySnippet(clipboardRefs.current[i])}
                   >
-                    <span>{s.name}</span>
-                    <span>{s.language}</span>
+                    📋
                   </button>
-                  <p ref={descriptionRefs.current[i]} className="menu">
-                    {s.description}
-                  </p>
-                </div>
-                <div className="height-animate-container">
                   <div
-                    id="snippet-wrapper"
-                    className="relative max-h-[250px] overflow-y-hidden rounded-b border-x-2 border-t border-b-2 border-solid border-emerald-500"
-                  >
-                    <button
-                      ref={clipboardRefs.current[i]}
-                      type="button"
-                      className="absolute top-2 right-2 z-30 rounded bg-slate-300/60 p-1"
-                      onClick={() => copySnippet(clipboardRefs.current[i])}
-                    >
-                      📋
-                    </button>
-                    <div
-                      id="code-wrapper"
-                      dangerouslySetInnerHTML={{ __html: s.snippet }}
-                    ></div>
-                    {s.snippet.match(/\n/g) !== null &&
-                      s.snippet.match(/\n/g)!.length > 12 && (
-                        <button
-                          id="see-more"
-                          className="absolute bottom-0 right-0 z-20 w-full text-white"
-                          onClick={showFullSnippet}
-                        >
-                          Show full snippet
-                        </button>
-                      )}
-                  </div>
+                    id="code-wrapper"
+                    dangerouslySetInnerHTML={{ __html: s.snippet }}
+                  ></div>
+                  {s.snippet.match(/\n/g) !== null &&
+                    s.snippet.match(/\n/g)!.length > 12 && (
+                      <button
+                        id="see-more"
+                        className="absolute bottom-0 right-0 z-20 w-full text-white"
+                        onClick={showFullSnippet}
+                      >
+                        <span className="absolute bottom-2/4 right-2/4 translate-x-2/4 translate-y-2/4">Show full snippet</span>
+                      </button>
+                    )}
                 </div>
               </div>
-            ))
+            </div>
+          ))
           : null}
       </div>
     </>
@@ -314,7 +315,11 @@ function SnippetsPage(props: SnippetProps) {
 }
 
 SnippetsPage.getLayout = function getLayout(page: ReactElement) {
-  return <Layout>{page}</Layout>;
+  return (
+    <Layout pageProps={page.props}>
+      {page}
+    </Layout>
+  )
 };
 
 export default SnippetsPage;

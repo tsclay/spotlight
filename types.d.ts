@@ -25,9 +25,19 @@ type SnippetTheme = {
   updated: Date;
 };
 
+type UserData = {
+    id: string,
+    username: string,
+    name: string,
+    avatar_url: string,
+    bio: string | null,
+    github_url: string,
+    twitter_handle: string | null
+}
+
 type SnippetProps = {
   snippets: Snippet[];
-  isAuth: string;
+  userData: UserData;
   css: string;
   themes: SnippetTheme[];
   preferredTheme: Record|null

@@ -47,6 +47,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     props: {
       snippets: JSON.parse(JSON.stringify(snippets)),
       isAuth: pb.authStore.isValid,
+      userData: JSON.parse(JSON.stringify(pb.authStore.model))
     },
   };
 };
@@ -127,7 +128,11 @@ function SnippetsPage(props: SnippetProps) {
 }
 
 SnippetsPage.getLayout = function getLayout(page: ReactElement) {
-  return <Layout>{page}</Layout>;
+  return (
+    <Layout pageProps={page.props}>
+      {page}
+    </Layout>
+  )
 };
 
 export default SnippetsPage;
