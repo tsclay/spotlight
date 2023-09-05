@@ -15,19 +15,19 @@ export default async function handler(
   console.log(formData);
   try {
     const pb = await initPocketBase(req, res);
-    formData["snippet"] = convertSnippetToPrism({body: formData["snippet"], language: formData["language"]})
+    formData["snippet"] = convertSnippetToPrism({ body: formData["snippet"], language: formData["language"] })
     console.log(formData)
     const newSnippet = await pb.collection("snippets").create(formData);
     console.log('here is the new snippet ', newSnippet)
     if (
-      req.headers["content-type"] &&
-      req.headers["content-type"] === "application/json"
+      req.headers["accept"] &&
+      req.headers["accept"] === "application/json"
     ) {
       return res.status(200).json(JSON.parse(JSON.stringify(newSnippet)));
     }
-    res.redirect("/snippets");
+    res.redirect(302, "/snippets");
   } catch (error) {
     console.log(error)
-    return res.status(400).json({message: 'Something went wrong while creating record.'})
+    return res.status(400).json({ message: 'Something went wrong while creating record.' })
   }
 }
