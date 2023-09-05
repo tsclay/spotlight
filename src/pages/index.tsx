@@ -29,9 +29,9 @@ export default function Login(props: {providers: AuthProviderInfo[], svgs: {src:
   return (
     <>
       {providers ? (
-        <ul className="flex justify-center">
+        <ul className="flex justify-center border-black border-solid h-32 absolute top-0 left-0 translate-x-2/4 translate-y-2/4 w-2/4 bg-blue-200 mt-8">
           {providers.map((provider, i) => (
-            <li key={provider.name} className="w-1/2">
+            <li key={provider.name} className="w-1/2 bg-slate-100">
               <a
                 className="flex justify-between items-center"
                 data-provider={JSON.stringify(provider)}
@@ -40,7 +40,7 @@ export default function Login(props: {providers: AuthProviderInfo[], svgs: {src:
                   console.log(e.target, e.currentTarget)
                   localStorage.setItem(
                     "provider",
-                    (e.currentTarget as HTMLAnchorElement).dataset.provider
+                    (e.currentTarget as HTMLAnchorElement).dataset.provider as string
                   )
                 }}
               >
