@@ -1,48 +1,63 @@
+body {
+  padding: 0px clamp(10px, calc((65vw - 20rem)/2), 120px);
+}
+
 #code-wrapper > pre[class*="language-"] {
-    margin: 0;
-    border-radius: 0;
-    border: none;
+  margin: 0;
+  border-radius: 0;
+  border: none;
 }
 
 .menu {
-    max-height: 0;
-    transition-property: transform, opacity;
-    transition-duration: 200ms;
-    transition-timing-function: linear;
-    transform: scaleY(0);
-    opacity: 0;
-    overflow: hidden;
+  max-height: 0;
+  transition-property: transform, opacity;
+  transition-duration: 200ms;
+  transition-timing-function: linear;
+  transform: scaleY(0);
+  opacity: 0;
+  overflow: hidden;
 }
 
 .move {
-    max-height: min-content;
-    transform: scaleY(1);
-    opacity: 1;
-    /* transition: opacity, transform 500ms linear; */
+  max-height: min-content;
+  transform: scaleY(1);
+  opacity: 1;
+  /* transition: opacity, transform 500ms linear; */
 }
 
 .nav-hide {
-    opacity: 0;
-    translate: -100% 0;
-    transition: all 400ms ease-in;
+  opacity: 0;
+  translate: -100% 0;
+  transition: all 400ms ease-in;
 }
 
 .nav-show {
-    opacity: 1;
-    translate: 0 0;
-    transition: all 400ms ease-in;
+  opacity: 1;
+  translate: 0 0;
+  transition: all 400ms ease-in;
 }
 
 button#see-more {
+  & span {
     transition: transform 500ms ease-in-out;
-    min-height: 100px;
-    background: linear-gradient(0deg, rgba(2,0,36,0.865909090909091) 0%, rgba(9,9,121,0.5227272727272727) 35%, rgba(0,212,255,0.38181818181818183) 100%);
+  }
+  transition: transform 500ms ease-in-out;
+  min-height: 100px;
+  background: linear-gradient(
+    0deg,
+    rgba(2, 0, 36, 0.865909090909091) 0%,
+    rgba(9, 9, 121, 0.5227272727272727) 35%,
+    rgba(0, 212, 255, 0.38181818181818183) 100%
+  );
 }
 
 button#see-more.moveit {
-    transform: translate(35%, 35%) scale(0.3);
+  transform: translate(0%, 80%) scale(1);
+  & span {
+    transform: translate(50%, -110%);
+  }
 }
 
 div#snippet-wrapper {
-    transition: max-height 200ms ease-in;
+  transition: max-height 200ms ease-in;
 }
