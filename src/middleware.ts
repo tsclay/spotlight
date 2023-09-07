@@ -24,7 +24,7 @@ export async function middleware(req: NextRequest) {
             // clear the auth store on failed refresh
             console.log('catch block')
             pb.authStore.clear();
-            return NextResponse.redirect(new URL('/auth/login', req.url))
+            return NextResponse.redirect(new URL('/', req.url))
         }
         // await pb.collection('users').authRefresh();
         // pb.authStore.loadFromCookie(pbCookie ? `pb_auth=${pbCookie}`)

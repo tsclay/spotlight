@@ -23,7 +23,6 @@ export default function OAuthRedirectPage(props: OAuthParamsProps) {
   const redirectUrl = "http://localhost:3000/auth/oauth-callback";
   useEffect(() => {
     const makeUser = async () => {
-      const pb = new PocketBase("http://127.0.0.1:8090");
       const provider = JSON.parse(localStorage.getItem("provider"));
       console.log('inside oauth useeffect ', provider, props)
 
@@ -45,7 +44,7 @@ export default function OAuthRedirectPage(props: OAuthParamsProps) {
         router.push('/snippets')
         return
       }
-      router.push('/auth/login')
+      router.push('/')
     };
     makeUser()
   }, []);
