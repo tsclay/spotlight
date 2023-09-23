@@ -36,7 +36,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   // const snippets = await pb.collection('snippets').getList(1,20, {
   //   filter: `author.id = ${authorId}`
   // })
-  const snippets = await (
+  const snippets = (
     await pb.collection("snippets").getList(1, 20, {
       filter: `author.id = '${query.author}'`,
     })

@@ -137,7 +137,7 @@ export const SnippetEditor = (props: AddSnippetProps) => {
             onMount={handleEditorDidMount}
           />
         </div>
-        <div id="controls" className="bg-blue-400 flex justify-between" style={{ height: '4vh' }}>
+        <div id="controls" className="bg-blue-400 flex p-1 justify-between" style={{ height: '4vh' }}>
           <input type="hidden" name="author" value={props.author} />
           {/* <label htmlFor="name">Name</label> */}
           <input type="text" name="name" id="name" defaultValue={randomName} className="bg-transparent grow" />

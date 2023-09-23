@@ -1,8 +1,8 @@
 import AddSnippet from "@/components/AddSnippet";
 import { GetServerSideProps } from "next";
 import {
-  useState,
-  useEffect,
+  // useState,
+  // useEffect,
   ReactElement,
   createRef,
   useRef,
@@ -70,7 +70,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 };
 
 function SnippetsPage(props: SnippetProps) {
-  const [showAdd, setShowAdd] = useState<boolean>(false);
+  // const [showAdd, setShowAdd] = useState<boolean>(false);
   const { snippets, userData, css, themes, preferredTheme } = props;
   // const [updateSnippets, setUpdateSnippets] = useState<Snippet[]>(snippets);
   const descriptionRefs = useRef(snippets.map((s) => createRef()));
@@ -198,27 +198,27 @@ function SnippetsPage(props: SnippetProps) {
       });
   };
 
-  useEffect(() => {
-    // console.info('inside of useEffect')
-    const handleOutsideClick = (e: Event) => {
-      console.log(e.target);
-      // console.log(`the showAdd state is ${showAdd}`)
-      if (
-        !showAdd ||
-        (e.target as Element).closest("div#add-snippet-container") ||
-        (e.target as Element).closest("button")
-      ) {
-        // console.warn('not going to change the state in click')
-        return;
-      }
-      setShowAdd(false);
-    };
-    document.addEventListener("click", handleOutsideClick, false);
-    return () => {
-      // console.warn('cleaning up in useEffect')
-      document.removeEventListener("click", handleOutsideClick, false);
-    };
-  }, [showAdd]);
+  // useEffect(() => {
+  //   // console.info('inside of useEffect')
+  //   const handleOutsideClick = (e: Event) => {
+  //     console.log(e.target);
+  //     // console.log(`the showAdd state is ${showAdd}`)
+  //     if (
+  //       !showAdd ||
+  //       (e.target as Element).closest("div#add-snippet-container") ||
+  //       (e.target as Element).closest("button")
+  //     ) {
+  //       // console.warn('not going to change the state in click')
+  //       return;
+  //     }
+  //     setShowAdd(false);
+  //   };
+  //   document.addEventListener("click", handleOutsideClick, false);
+  //   return () => {
+  //     // console.warn('cleaning up in useEffect')
+  //     document.removeEventListener("click", handleOutsideClick, false);
+  //   };
+  // }, [showAdd]);
 
   return (
     <>
@@ -228,15 +228,15 @@ function SnippetsPage(props: SnippetProps) {
           dangerouslySetInnerHTML={{ __html: css }}
         ></style>
       ) : null}
-      <div className="flex flex-col gap-4 p-4">
+      <div className="flex flex-col gap-4 py-4 px-32">
         {userData && userData.id ? (
           <form
             action="/snippets/new"
             method="GET"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setShowAdd(true);
-            }}
+            // onSubmit={(e) => {
+            //   e.preventDefault();
+            //   setShowAdd(true);
+            // }}
           >
             <button type="submit">+</button>
           </form>
@@ -252,13 +252,13 @@ function SnippetsPage(props: SnippetProps) {
             </option>
           ))}
         </select>
-        {showAdd && userData && userData.id ? (
+        {/*showAdd && userData && userData.id ? (
           <AddSnippet
             author={userData.id}
             updateSnippets={handleUpdateSnippets}
             onSuccess={() => setShowAdd(false)}
           />
-        ) : null}
+        ) : null*/}
         {snippets
           ? snippets.map((s, i) => (
             <div key={s.id} data-author={s.author}>

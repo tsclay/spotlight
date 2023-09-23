@@ -1,5 +1,5 @@
 body {
-  padding: 0px clamp(10px, calc((65vw - 20rem)/2), 120px);
+  padding: 0px 0.5vw; 
 }
 
 #code-wrapper > pre[class*="language-"] {
