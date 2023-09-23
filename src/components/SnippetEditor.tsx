@@ -1,6 +1,6 @@
 import Editor, { DiffEditor, useMonaco, loader, Monaco } from "@monaco-editor/react";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { monaco } from "react-monaco-editor";
 import { AddSnippetProps } from "types";
 
@@ -63,8 +63,15 @@ const supportedLanguages = [
   { id: 56, name: 'yaml', displayName: 'YAML' }
 ]
 
+type NewSnippetBody = {
+  author: string,
+  name: string,
+  language: string,
+  snippet: string
+}
+
 export const SnippetEditor = (props: AddSnippetProps) => {
-  const editorRef = useRef(null);
+  const editorRef: MutableRefObject<monaco.editor.IStandaloneCodeEditor | null> = useRef(null);
   const [mode, setMode] = useState("javascript");
   const [code, setCode] = useState("");
   const [randomName, setRandomName] = useState("")
@@ -76,9 +83,11 @@ export const SnippetEditor = (props: AddSnippetProps) => {
     const codeValue = (editorRef.current! as monaco.editor.IStandaloneCodeEditor)!.getModel()!.getValue()
     const { method, action } = e.target as HTMLFormElement;
     const formData = new FormData(e.target as HTMLFormElement);
-    const jsonData = {};
-    formData.forEach((v, k, p) => {
-      jsonData[k] = v;
+    const jsonData: NewSnippetBody = { author: '', name: '', language: '', snippet: '' }
+    formData.forEach((v, k) => {
+      if (k in jsonData) {
+        jsonData[k as keyof NewSnippetBody] = v as string;
+      }
     });
     jsonData["snippet"] = codeValue
     console.log(JSON.stringify(jsonData));
@@ -94,15 +103,11 @@ export const SnippetEditor = (props: AddSnippetProps) => {
     router.push('/snippets')
   }
 
-  function handleEditorDidMount(editor, monaco) {
+  function handleEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco) {
     editorRef.current = editor;
   }
-  function handleEditCode(newValue, e) {
+  function handleEditCode(newValue: string, e: Event) {
     console.log(newValue)
-  }
-
-  function debounce(e: Event) {
-    console.log(val)
   }
 
   async function getRandomPhrase() {
